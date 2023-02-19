@@ -1,12 +1,14 @@
 <script>
 import TheContactItem from "./TheContactItem.vue";
 import TheContactEditorVue from "./TheContactEditor.vue";
+import TheSelectButton from "./TheSelectButton.vue";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
     TheContactItem,
     TheContactEditorVue,
+    TheSelectButton,
   },
   data() {
     return {
@@ -19,6 +21,12 @@ export default {
       showBtnbackToContact: false,
       sortAscending: "ask",
       sortDescending: "desc",
+      options: [
+        { name: "New contacts", value: "newContacts" },
+        { name: "Old contacts", value: "oldContacts" },
+        { name: "Default contacts", value: "defaultContacts" },
+      ],
+      selected: "Sort contacts",
     };
   },
 
@@ -103,8 +111,7 @@ export default {
         this.btnPagination = false;
         this.search = "";
       } else {
-        this.search = "";
-        alert("Please, enter your contact correctly");
+        alert("Please, enter at least two letters!)");
       }
     },
     backToContact() {
@@ -113,6 +120,7 @@ export default {
       this.GET_CONTACTS_FROM_API();
       this.btnPagination = true;
       this.btnPaginationForFilter = "";
+      this.search = "";
     },
     sortByDateAddedNew() {
       this.pageNumber = 1;
@@ -136,6 +144,18 @@ export default {
       this.btnPaginationForFilter = "";
       this.btnPaginationForFilter = "sortByDateAddedOld";
     },
+    sortByContacts(typeSort) {
+      this.selected = typeSort.name;
+      if (typeSort.name === "New contacts") {
+        this.sortByDateAddedNew();
+        this.showBtnbackToContact = false;
+      } else if (typeSort.name === "Old contacts") {
+        this.sortByDateAddedOld();
+        this.showBtnbackToContact = false;
+      } else {
+        this.backToContact();
+      }
+    },
   },
   mounted() {
     this.GET_CONTACTS_FROM_API();
@@ -150,37 +170,36 @@ export default {
     </router-link>
     <h1>Contacts</h1>
     <div class="the-contact__search-wrapper">
-      <input
-        class="the-contact__input"
-        type="text"
-        placeholder="Please, enter name of your contact"
-        v-model="search"
+      <div class="input">
+        <input
+          class="the-contact__input"
+          type="text"
+          placeholder="Please, enter name of your contact"
+          v-model="search"
+        />
+        <button class="the-contact__input-btn" @click="getSearchContact">
+          Search
+        </button>
+      </div>
+      <TheSelectButton
+        :options="options"
+        :selected="selected"
+        @select="sortByContacts"
       />
-      <button class="the-contact__input-btn" @click="getSearchContact">
-        Search
-      </button>
- 
-      <div class="the-contact__sort-by-date-add"></div>
-      <div v-show="showHiddenMessage">
-        <h3>Sorry, nothing found!</h3>
-      </div>
-      <div>
-
-        <button class="the-contact__sort-up-btn" @click="sortByDateAddedNew">
-        Sort newContacts
-      </button>
-      <button class="the-contact__sort-down-btn" @click="sortByDateAddedOld">
-        Sort oldContacts
-      </button>
-      <button
-        class="the-contact__back-to-contact-btn"
-        v-if="showBtnbackToContact"
-        @click="backToContact"
-      >
-        Reset sort
-      </button>
-      </div>
     </div>
+
+    <button
+      class="the-contact__back-to-contact-btn"
+      v-if="showBtnbackToContact"
+      @click="backToContact"
+    >
+      Reset App
+    </button>
+
+    <div v-show="showHiddenMessage">
+      <h3>Sorry, nothing found!</h3>
+    </div>
+
     <TheContactItem
       v-for="item in CONTACTS"
       :key="item.id"
@@ -222,12 +241,17 @@ export default {
     width: 125px;
     height: 33px;
   }
+
   &__search-wrapper {
+    margin-top: 15px;
     margin: $margin * 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
   }
   &__input {
     margin-right: $margin;
-    margin-bottom: $margin*2;
+    margin-bottom: $margin * 2;
     border: solid 1px #aeaeae;
     height: 33px;
     width: 250px;
@@ -246,7 +270,7 @@ export default {
   height: 35px;
   border: solid 1px #aeaeae;
   background: rgb(185, 199, 209);
-  margin-bottom: $margin*2;
+  margin-bottom: $margin * 2;
 }
 .the-contact__back-to-contact-btn {
   width: 125px;
@@ -254,22 +278,8 @@ export default {
   background: rgb(58, 58, 252);
   color: #ffffff;
   border: solid 1px #aeaeae;
-  margin: $margin*0.5;
+  margin-bottom: $margin*4 ;
+  margin-top: $margin;
 }
-.the-contact__sort-up-btn {
-  width: 125px;
-  height: 35px;
-  border: solid 1px #aeaeae;
-  background: #9198e7;
-  color: #fff;
-  margin: $margin*0.5;
-}
-.the-contact__sort-down-btn {
-  width: 125px;
-  height: 35px;
-  border: solid 1px #aeaeae;
-  background: #9198e7;
-  color: #fff;
-  margin: $margin*0.5;
-}
+
 </style>

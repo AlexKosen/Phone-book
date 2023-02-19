@@ -38,6 +38,11 @@ export default {
       }
     },
   },
+  mounted() {
+    this.user.name = this.CONTACT_EDIT.name;
+    this.user.numberPhone = this.CONTACT_EDIT.numberPhone;
+    this.user.email = this.CONTACT_EDIT.email;
+  }
 };
 </script>
 
